@@ -1,0 +1,14 @@
+# Runtime deps for the IPOL demo of the "colorization-metrics" survey.
+# The base image (registry.ipol.im/ipol:v2-py3.11-pytorch) already provides:
+#   - Python 3.11
+#   - torch, torchvision (CPU)
+# The packages below are installed on top of that.
+
+# Algorithm source (the package being demoed). Pin to a specific commit/tag once
+# the upstream tags a release; using origin/main for the prototype.
+colorization-metrics @ git+https://gitlab.univ-lorraine.fr/maignan2/colorization-metrics.git@main
+
+# Inria-GitLab git-only deps required by the algorithm. Revisions match those
+# locked in the algorithm's requirements.txt.
+maniqa @ git+https://gitlab.inria.fr/nmaignan/MANIQA@a5f9564705bc146a97e19397d755dfd42448ed02
+matpy @ git+https://gitlab.inria.fr/nmaignan/matpy@609a1b834dd61e8bf723448ae81bf1a606fa02a0
