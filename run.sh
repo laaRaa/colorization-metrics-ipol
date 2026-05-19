@@ -22,8 +22,11 @@
 
 set -euo pipefail
 
-# Permet de lister toutes les variables d'environnement actives sur IPOL
-env | grep -i extra >&2 || echo "Aucune variable contenant le mot extra n'a été trouvée" >&2
+# === LOCALISATION RAPIDE DES EXTRAS ===
+echo "=== RECHERCHE DU FICHIER MANIQA SUR LE DISQUE ===" >&2
+# Cherche le fichier pt n'importe où dans le répertoire /workdir
+find /workdir -name "ckpt_koniq10k.pt" -print 2>/dev/null || echo "Fichier introuvable via find" >&2
+echo "=================================================" >&2
 
 #if [ -d "/workdir/demoextras" ]; then
 #    echo "Le dossier /workdir/demoextras existe bien." >&2
