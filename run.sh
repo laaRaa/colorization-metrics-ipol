@@ -26,30 +26,30 @@ BIN="$1"
 DEMOEXTRAS="$2"
 INPUT_COLORED="$3"
 
-# IPOL décale les arguments si input_1.png est absent.
-# On détecte si le 4ème argument est un fichier OU si le 5ème est l'espace de couleur.
-if [ "$5" = "lab" ] || [ "$5" = "rgb" ]; then
-    # Mode Paired : input_1.png est bien présent en 4ème position
-    INPUT_GT_NAME="$4"
-    COLOR_SPACE="$5"
-    LPIPS_NET="$6"
-    FID_DIMS="$7"
-    COLORFULNESS_TYPE="$8"
-else
-    # Mode Single-image : input_1.png a été sauté par IPOL.
-    # Tout le reste a glissé d'un cran vers la gauche.
-    INPUT_GT_NAME="/dev/null"
-    COLOR_SPACE="$4"
-    LPIPS_NET="$5"
-    FID_DIMS="$6"
-    COLORFULNESS_TYPE="$7"
-fi
+## IPOL décale les arguments si input_1.png est absent.
+## On détecte si le 4ème argument est un fichier OU si le 5ème est l'espace de couleur.
+#if [ "$5" = "lab" ] || [ "$5" = "rgb" ]; then
+#    # Mode Paired : input_1.png est bien présent en 4ème position
+#    INPUT_GT_NAME="$4"
+#    COLOR_SPACE="$5"
+#    LPIPS_NET="$6"
+#    FID_DIMS="$7"
+#    COLORFULNESS_TYPE="$8"
+#else
+#    # Mode Single-image : input_1.png a été sauté par IPOL.
+#    # Tout le reste a glissé d'un cran vers la gauche.
+#    INPUT_GT_NAME="/dev/null"
+#    COLOR_SPACE="$4"
+#    LPIPS_NET="$5"
+#    FID_DIMS="$6"
+#    COLORFULNESS_TYPE="$7"
+#fi
 
-#INPUT_GT_NAME="$4"
-#COLOR_SPACE="$5"
-#LPIPS_NET="$6"
-#FID_DIMS="$7"
-#COLORFULNESS_TYPE="$8"
+INPUT_GT_NAME="$4"
+COLOR_SPACE="$5"
+LPIPS_NET="$6"
+FID_DIMS="$7"
+COLORFULNESS_TYPE="$8"
 
 # Defensive guard: fail loudly if demoExtras is missing or stripped, instead of
 # letting MANIQA silently start a 543 MB download at request time.
