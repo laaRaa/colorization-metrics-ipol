@@ -71,7 +71,7 @@
     }
   ],
 
-  "run": "bash $bin/run.sh $bin input_0.png input_1.png $color_space $LPIPS_net $fid_dims $colorfulness_type",
+  "run": "bash $bin/run.sh $bin $demoextras input_0.png input_1.png $color_space $LPIPS_net $fid_dims $colorfulness_type",
 
   "results": [
     {

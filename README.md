@@ -1,5 +1,5 @@
 ---
-noteId: "91a9f2a0532711f194418f7638caa003"
+noteId: "85808ef0537511f194418f7638caa003"
 tags: []
 
 ---
@@ -10,7 +10,7 @@ IPOL demo wrapper for the paper **"A survey of metrics used for image colorizati
 
 - **Demo ID:** `77777000567`
 - **Demo URL:** <https://ipolcore.ipol.im/cp2/showDemo?demo_id=77777000567>
-- **Algorithm source:** <https://gitlab.univ-lorraine.fr/maignan2/colorization-metrics>
+- **Algorithm source (upstream):** <https://gitlab.univ-lorraine.fr/maignan2/colorization-metrics>
 - **Paper preprint:** see the article page linked from the demo.
 
 ## What the demo does
@@ -32,56 +32,56 @@ Higher is better for PSNR, SSIM, MANIQA, and Colorfulness; lower is better for L
 ├── DDL.json              Reference copy of the canonical Demo Description Line
 ├── README.md             This file
 ├── main.py               Python entry point used by run.sh
-├── requirements.txt      Pip deps (pulls colorization-metrics + Inria git deps)
-└── run.sh                Shell wrapper invoked by ddl.json's `run` field
+├── requirements.txt      Optional ad-hoc deps (intentionally empty by default)
+├── run.sh                Shell wrapper invoked by ddl.json's `run` field
+└── src/                  Vendored sources installed into the Docker image
+    ├── colorization-metrics/   the algorithm (mirror of gitlab.univ-lorraine.fr/maignan2/colorization-metrics)
+    ├── MANIQA/                 vendored from gitlab.inria.fr/nmaignan/MANIQA (one CPU-compat patch applied)
+    └── matpy/                  vendored from gitlab.inria.fr/nmaignan/matpy
 ```
+
+The three vendored directories under `src/` are exact mirrors of the upstream sources at the commits pinned in the algorithm's `pyproject.toml`, with **one** local edit applied to `src/MANIQA/src/maniqa/inference.py` (see "MANIQA CPU patch" below).
 
 The live DDL is maintained in the IPOL control panel — `DDL.json` here is a frozen reference for reviewers and for `git diff`-able history.
 
-## Pretrained model weights
+## How runtime is kept fast
 
-The reference-based metrics (LPIPS, FID) and the referenceless MANIQA metric require pretrained network weights. To avoid slow runtime downloads inside the IPOL container, weights are delivered as an **IPOL demoExtras** blob (a zip uploaded once via the demo's admin panel). At runtime, `run.sh` exports `TORCH_HOME` and `MANIQA_CHECKPOINT` so that `lpips`, `pytorch_fid`, and `maniqa` find the pre-extracted files under `$demoextras/`.
+All pretrained weights are baked into the Docker image during `docker build`, not fetched at request time:
 
-Expected layout inside the demoExtras zip:
+| Metric | Weights location inside the image | Source URL |
+| --- | --- | --- |
+| LPIPS (alex / vgg / squeeze) | `/home/ipol/.cache/torch/hub/checkpoints/{alexnet,vgg16,squeezenet1_1}-*.pth` | `download.pytorch.org/models/…` via `torchvision.models.*(weights=...)` |
+| FID Inception V3 | `/home/ipol/.cache/torch/hub/checkpoints/pt_inception-…pth` | `pytorch_fid.inception.InceptionV3` |
+| MANIQA | `/home/ipol/.cache/maniqa/ckpt_koniq10k.pt` | `https://github.com/IIGROUP/MANIQA/releases/download/Koniq10k/ckpt_koniq10k.pt` (matches MANIQA's `user_cache_dir("maniqa", "nifra")` path) |
+| BRISQUE / NIQE | bundled inside `src/colorization-metrics/data/` (committed) | n/a |
 
-```
-torch/
-  hub/checkpoints/
-    alexnet-owt-*.pth          # LPIPS:alex
-    vgg16-*.pth                # LPIPS:vgg
-    squeezenet1_1-*.pth        # LPIPS:squeeze
-    pt_inception-2015-12-05-*.pth   # pytorch-fid InceptionV3
-maniqa/
-  ckpt_koniq10k.pt             # MANIQA pretrained checkpoint
-```
+So a request inside the IPOL container does no network IO. There is **no** IPOL `demoExtras` dependency.
 
-To regenerate the zip locally, run `scripts/fetch_weights.py` from the parent editor workspace (not committed in this repo).
+## MANIQA CPU patch
+
+The MANIQA Koniq10k checkpoint was saved on a CUDA machine. The IPOL runner is CPU-only, so `torch.load(ckpt)` raises *"Attempting to deserialize object on a CUDA device but torch.cuda.is_available() is False"*. Lines 142–151 of `src/MANIQA/src/maniqa/inference.py` are patched here to (a) load with `map_location=device` and (b) move patches to the same `device` (CPU when CUDA is unavailable). Refresh the vendored copy with `git diff` if you re-pull from upstream.
 
 ## How to run outside IPOL
 
-The demo can be exercised locally without IPOL. Assuming `git`, `ffmpeg`, and `python3.11` (or newer) are installed:
+The demo can be exercised locally without IPOL. Requires `git`, `ffmpeg`, and Python 3.11+.
 
 ```shell
-# 1. Get the demo repo (this one).
 git clone <demo-repo-url> colorization-metrics-ipol
 cd colorization-metrics-ipol
 
-# 2. Install Python deps (uses the algorithm from upstream gitlab).
+# Create an isolated env and install the vendored sources.
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install ./src/matpy ./src/MANIQA ./src/colorization-metrics
 
-# 3. (Optional) Pre-populate the weights cache so LPIPS/FID/MANIQA work offline.
-#    Either run scripts/fetch_weights.py from the editor workspace, or let the
-#    libraries download on first invocation:
-export TORCH_HOME=~/.cache/torch
-
-# 4. Run on a single image (referenceless metrics only).
+# Run on a single image (referenceless metrics only).
 bash run.sh "$PWD" path/to/colorized.png /dev/null lab alex 64 3
 
-# 5. Or run paired (all eight metrics).
+# Or run paired (all eight metrics).
 bash run.sh "$PWD" path/to/colorized.png path/to/ground_truth.png lab alex 64 3
 ```
+
+The first run will fetch the LPIPS / FID / MANIQA weights into your user cache (~1.4 GB combined). Subsequent runs are offline.
 
 ## License
 

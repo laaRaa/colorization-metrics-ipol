@@ -1,0 +1,82 @@
+# NOTE: Description
+[project]
+name = "matpy"
+version = "0.1.0"
+requires-python = ">=3.10"
+authors = [{ name = "Aleksandr Petiushko" }]
+maintainers = [
+  { name = "Nicolas MAIGNAN", email = "nicolas.maignan@univ-lorraine.fr" },
+]
+description = "Reimplementation of some MATLAB functions in Python."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["matlab"]
+
+
+# NOTE: Dependencies
+dependencies = ["numpy>=2.2.6"]
+
+
+# NOTE: Optional dependencies
+[dependency-groups]
+dev = ["basedpyright>=1.29.4", "pylint>=3.3.7", "ruff>=0.11.13"]
+
+
+# NOTE: URLs
+[project.urls]
+repository = "https://gitlab.inria.fr/nmaignan/matpy"
+
+
+# NOTE: Linters and formatter
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+[tool.ruff.format]
+docstring-code-format = true
+line-ending = "lf"
+skip-magic-trailing-comma = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["COM812"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["colorization_metrics"]
+split-on-trailing-comma = false
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pylint.format]
+disable = [
+  "empty-docstring",
+  "import-outside-toplevel",
+  "invalid-name",
+  "line-too-long",
+  "logging-fstring-interpolation",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "missing-module-docstring",
+  "no-name-in-module",
+  "syntax-error",
+  "too-many-arguments",
+  "too-many-branches",
+  "too-many-locals",
+  "too-many-positional-arguments",
+  "too-many-statements",
+  "undefined-variable",
+  "unused-import",
+  "unused-variable",
+  "wrong-import-order",
+  "wrong-import-position",
+]
+max-line-length = 88
+init-hook = "import sys ; sys.path.append('.')"
+
+
+# NOTE: Builder
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

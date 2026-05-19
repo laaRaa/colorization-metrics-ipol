@@ -1,22 +1,16 @@
 """IPOL demo entry point for the "colorization-metrics" survey (demo id 77777000567).
 
-Invoked by run.sh (which the DDL `run` field calls). Thin wrapper that:
-  - resolves where the pretrained-model weights live (demoExtras when running in
-    IPOL, fallback cache when running locally for development),
-  - hands off to ``colorization_metrics.evaluate.compute_metrics`` with the user
-    parameters.
+Invoked by run.sh, which the DDL's `run` field calls. Thin wrapper that just
+parses the user parameters and hands off to compute_metrics. All pretrained
+weights (LPIPS backbones, FID InceptionV3, MANIQA Koniq10k) are baked into the
+Docker image during build, so this script does no caching or downloading.
 
-The algorithm itself decides which metrics apply: when ``gt`` is ``None`` it
-computes only the four referenceless metrics (BRISQUE, NIQE, MANIQA,
-Colorfulness); when ``gt`` is provided it additionally computes PSNR, SSIM,
-LPIPS, and FID.
+When the optional ground-truth image is absent, ``compute_metrics`` automatically
+skips PSNR / SSIM / LPIPS / FID and runs only the four referenceless metrics.
 """
 
 import argparse
-import os
 import sys
-
-ROOT = os.path.dirname(os.path.realpath(__file__))
 
 
 def main() -> None:
@@ -29,16 +23,8 @@ def main() -> None:
     parser.add_argument("--colorfulness_type", type=int, default=3, choices=[1, 2, 3])
     args = parser.parse_args()
 
-    # Point weight caches at $demoextras when IPOL provides it, otherwise fall
-    # back to a sibling demoextras/ folder (useful for local dev).
-    demoextras = os.environ.get("demoextras") or os.path.join(ROOT, "demoextras")
-    if os.path.isdir(demoextras):
-        os.environ.setdefault("TORCH_HOME", os.path.join(demoextras, "torch"))
-        maniqa_ckpt = os.path.join(demoextras, "maniqa", "ckpt_koniq10k.pt")
-        if os.path.isfile(maniqa_ckpt):
-            os.environ.setdefault("MANIQA_CHECKPOINT", maniqa_ckpt)
-
-    # Imports happen after env-var setup so the libraries pick up the cache paths.
+    # Imports happen here (not at module load) so any algorithm-side cwd
+    # assumption set up by run.sh is in place first.
     from colorization_metrics.evaluate import MetricParameters, compute_metrics
 
     compute_metrics(
