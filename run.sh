@@ -49,6 +49,15 @@ INPUT_GT_NAME="$4"
 COLOR_SPACE="$5"
 LPIPS_NET="$6"
 FID_DIMS="$7"
+
+echo "\$1 (BIN)               = '$BIN'" >&2
+echo "\$2 (DEMOEXTRAS)        = '$DEMOEXTRAS'" >&2
+echo "\$3 (INPUT_COLORED)     = '$INPUT_COLORED'" >&2
+echo "\$4 (INPUT_GT_NAME)     = '$INPUT_GT_NAME'" >&2
+echo "\$5 (COLOR_SPACE)       = '$COLOR_SPACE'" >&2
+echo "\$6 (LPIPS_NET)         = '$LPIPS_NET'" >&2
+echo "\$7 (FID_DIMS)          = '$FID_DIMS'" >&2
+
 COLORFULNESS_TYPE="$8"
 
 # Defensive guard: fail loudly if demoExtras is missing or stripped, instead of
