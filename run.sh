@@ -26,17 +26,19 @@ BIN="$1"
 DEMOEXTRAS="$2"
 INPUT_COLORED="$3"
 
-# Si le 4ème argument est un fichier existant, on est en mode "paired" (2 images)
-if [ -f "$4" ]; then
+# IPOL décale les arguments si input_1.png est absent.
+# On détecte si le 4ème argument est un fichier OU si le 5ème est l'espace de couleur.
+if [ "$5" = "lab" ] || [ "$5" = "rgb" ]; then
+    # Mode Paired : input_1.png est bien présent en 4ème position
     INPUT_GT_NAME="$4"
     COLOR_SPACE="$5"
     LPIPS_NET="$6"
     FID_DIMS="$7"
     COLORFULNESS_TYPE="$8"
 else
-    # Si $4 n'est pas un fichier, c'est que input_1.png a été omis par IPOL !
-    # Tout a glissé d'un cran vers la gauche.
-    INPUT_GT_NAME="/dev/null" # ou vide
+    # Mode Single-image : input_1.png a été sauté par IPOL.
+    # Tout le reste a glissé d'un cran vers la gauche.
+    INPUT_GT_NAME="/dev/null"
     COLOR_SPACE="$4"
     LPIPS_NET="$5"
     FID_DIMS="$6"
