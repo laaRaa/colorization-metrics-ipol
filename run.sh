@@ -25,13 +25,13 @@ set -euo pipefail
 # Permet de lister toutes les variables d'environnement actives sur IPOL
 env | grep -i extra >&2 || echo "Aucune variable contenant le mot extra n'a été trouvée" >&2
 
-if [ -d "/workdir/demoextras" ]; then
-    echo "Le dossier /workdir/demoextras existe bien." >&2
-    echo "Voici la liste des fichiers et dossiers trouvés à l'intérieur :" >&2
-    ls -la /workdir/demoextras >&2
-else
-    echo "ERREUR : Le dossier /workdir/demoextras n'existe pas du tout sur le disque !" >&2
-fi
+#if [ -d "/workdir/demoextras" ]; then
+#    echo "Le dossier /workdir/demoextras existe bien." >&2
+#    echo "Voici la liste des fichiers et dossiers trouvés à l'intérieur :" >&2
+#    ls -la /workdir/demoextras >&2
+#else
+#    echo "ERREUR : Le dossier /workdir/demoextras n'existe pas du tout sur le disque !" >&2
+#fi
 
 BIN="$1"
 DEMOEXTRAS="$2"
