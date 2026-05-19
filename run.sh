@@ -22,6 +22,14 @@
 
 set -euo pipefail
 
+if [ -d "/workdir/demoextras" ]; then
+    echo "Le dossier /workdir/demoextras existe bien." >&2
+    echo "Voici la liste des fichiers et dossiers trouvés à l'intérieur :" >&2
+    ls -la /workdir/demoextras >&2
+else
+    echo "ERREUR : Le dossier /workdir/demoextras n'existe pas du tout sur le disque !" >&2
+fi
+
 BIN="$1"
 DEMOEXTRAS="$2"
 INPUT_COLORED="$3"
