@@ -25,11 +25,29 @@ set -euo pipefail
 BIN="$1"
 DEMOEXTRAS="$2"
 INPUT_COLORED="$3"
-INPUT_GT_NAME="$4"
-COLOR_SPACE="$5"
-LPIPS_NET="$6"
-FID_DIMS="$7"
-COLORFULNESS_TYPE="$8"
+
+# Si le 4ème argument est un fichier existant, on est en mode "paired" (2 images)
+if [ -f "$4" ]; then
+    INPUT_GT_NAME="$4"
+    COLOR_SPACE="$5"
+    LPIPS_NET="$6"
+    FID_DIMS="$7"
+    COLORFULNESS_TYPE="$8"
+else
+    # Si $4 n'est pas un fichier, c'est que input_1.png a été omis par IPOL !
+    # Tout a glissé d'un cran vers la gauche.
+    INPUT_GT_NAME="/dev/null" # ou vide
+    COLOR_SPACE="$4"
+    LPIPS_NET="$5"
+    FID_DIMS="$6"
+    COLORFULNESS_TYPE="$7"
+fi
+
+#INPUT_GT_NAME="$4"
+#COLOR_SPACE="$5"
+#LPIPS_NET="$6"
+#FID_DIMS="$7"
+#COLORFULNESS_TYPE="$8"
 
 # Defensive guard: fail loudly if demoExtras is missing or stripped, instead of
 # letting MANIQA silently start a 543 MB download at request time.
